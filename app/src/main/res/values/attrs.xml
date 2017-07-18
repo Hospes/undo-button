@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DelayedButton">
+        <attr name="android:text" />
+        <attr name="delb_textUndo" format="string" />
+        <attr name="delb_delay" format="integer" />
+        <attr name="delb_showSeconds" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="CustomTheme">
+        <attr name="delayedButtonStyle" format="reference" />
+    </declare-styleable>
+</resources>

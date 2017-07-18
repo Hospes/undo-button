@@ -1,0 +1,100 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven-publish'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdk
+    buildToolsVersion rootProject.ext.buildTools
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdk
+        targetSdkVersion rootProject.ext.targetSdk
+
+        versionCode 1
+        versionName rootProject.ext.libVersion
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "com.android.support:support-annotations:${rootProject.ext.supportLib}"
+    compileOnly "com.android.support:recyclerview-v7:${rootProject.ext.supportLib}"
+    implementation "io.reactivex:rxandroid:${rootProject.ext.rxAndroid}"
+    implementation "io.reactivex:rxjava:${rootProject.ext.rxJava}"
+}
+
+def siteUrl = 'https://github.com/Hospes/undobutton'      // Homepage URL of the library
+def gitUrl = 'https://github.com/Hospes/undobutton.git'   // Git repository URL
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+project.version = rootProject.ext.libVersion
+group = 'ua.hospes.undobutton'
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def bintrayUser = properties.getProperty('bintray.user')
+def bintrayApiKey = properties.getProperty('bintray.apikey')
+
+bintray {
+    user = bintrayUser != null ? bintrayUser : System.getenv('BINTRAY_USER')
+    key = bintrayApiKey != null ? bintrayApiKey : System.getenv('BINTRAY_API_KEY')
+
+    configurations = ['archives']
+    publications = ['Publication']
+
+    pkg {
+        repo = 'maven'
+        name = 'UndoButton'
+        licenses = ['Apache-2.0']
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        publish = true
+
+        version {
+            name = rootProject.ext.libVersion
+            released = new Date()
+        }
+    }
+}
+
+publishing {
+    publications {
+        Publication(MavenPublication) {
+            artifact 'build/outputs/aar/app-release.aar'
+            groupId 'ua.hospes.undobutton'
+            artifactId 'undobutton'
+            version rootProject.ext.libVersion
+        }
+    }
+}
