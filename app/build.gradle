@@ -28,16 +28,14 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
     implementation "com.android.support:support-annotations:${rootProject.ext.supportLib}"
-    compileOnly "com.android.support:recyclerview-v7:${rootProject.ext.supportLib}"
-    implementation "io.reactivex:rxandroid:${rootProject.ext.rxAndroid}"
-    implementation "io.reactivex:rxjava:${rootProject.ext.rxJava}"
+    implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportLib}"
+    implementation "io.reactivex.rxjava2:rxandroid:${rootProject.ext.rxAndroid2}"
+    implementation "io.reactivex.rxjava2:rxjava:${rootProject.ext.rxJava2}"
 }
 
-def siteUrl = 'https://github.com/Hospes/undobutton'      // Homepage URL of the library
-def gitUrl = 'https://github.com/Hospes/undobutton.git'   // Git repository URL
+def siteUrl = 'https://github.com/Hospes/undo-button'      // Homepage URL of the library
+def gitUrl = 'https://github.com/Hospes/undo-button.git'   // Git repository URL
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
@@ -95,6 +93,18 @@ publishing {
             groupId 'ua.hospes.undobutton'
             artifactId 'undobutton'
             version rootProject.ext.libVersion
+
+            //The publication doesn't know about our dependencies, so we have to manually add them to the pom
+            pom.withXml {
+                def depsNode = asNode().appendNode('dependencies')
+
+                configurations.api.allDependencies.each { dep ->
+                    def depNode = depsNode.appendNode('dependency')
+                    depNode.appendNode('groupId', dep.group)
+                    depNode.appendNode('artifactId', dep.name)
+                    depNode.appendNode('version', dep.version)
+                }
+            }
         }
     }
 }

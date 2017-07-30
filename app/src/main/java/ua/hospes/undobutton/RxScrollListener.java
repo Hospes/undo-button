@@ -4,15 +4,16 @@ import android.support.v7.widget.RecyclerView;
 
 import java.util.concurrent.TimeUnit;
 
-import rx.subjects.PublishSubject;
+import io.reactivex.subjects.PublishSubject;
+
 
 /**
  * @author Andrew Khloponin
  */
 @SuppressWarnings("WeakerAccess")
 abstract class RxScrollListener extends RecyclerView.OnScrollListener {
-    protected static final long SKIP_RECALCULATION_DURATION = 300;
-    private final PublishSubject<RecyclerView> subject = PublishSubject.create();
+    protected static final long                         SKIP_RECALCULATION_DURATION = 300;
+    private final          PublishSubject<RecyclerView> subject                     = PublishSubject.create();
 
 
     RxScrollListener() {

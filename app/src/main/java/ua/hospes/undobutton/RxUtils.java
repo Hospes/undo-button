@@ -2,38 +2,39 @@ package ua.hospes.undobutton;
 
 import java.util.HashMap;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * @author Andrew Khloponin
  */
 class RxUtils {
     @SuppressWarnings("unchecked")
-    static <T> Observable.Transformer<T, T> applySchedulers() {
+    static <T> ObservableTransformer<T, T> applySchedulers() {
         return observable -> observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    private static final HashMap<Object, CompositeSubscription> sSubscriptions = new HashMap<Object, CompositeSubscription>();
+    private static final HashMap<Object, CompositeDisposable> sSubscriptions = new HashMap<Object, CompositeDisposable>();
 
-    static void manage(Object tag, Subscription subscription) {
-        CompositeSubscription subscriptions = sSubscriptions.get(tag);
-        if (subscriptions == null) {
-            subscriptions = new CompositeSubscription();
-            sSubscriptions.put(tag, subscriptions);
+    static void manage(Object tag, Disposable disposable) {
+        CompositeDisposable disposables = sSubscriptions.get(tag);
+        if (disposables == null) {
+            disposables = new CompositeDisposable();
+            sSubscriptions.put(tag, disposables);
         }
 
-        subscriptions.add(subscription);
+        disposables.add(disposable);
     }
 
     static void unsubscribe(Object tag) {
-        CompositeSubscription subscriptions = sSubscriptions.get(tag);
-        if (subscriptions != null) {
-            subscriptions.unsubscribe();
+        CompositeDisposable disposables = sSubscriptions.get(tag);
+        if (disposables != null) {
+            disposables.dispose();
             sSubscriptions.remove(tag);
         }
     }

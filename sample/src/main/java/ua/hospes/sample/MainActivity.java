@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
 
         @Override
         public int getItemCount() {
-            return 100;
+            return 6;
         }
 
         class MyHolder extends RecyclerView.ViewHolder {
